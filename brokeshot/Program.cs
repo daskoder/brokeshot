@@ -2,6 +2,7 @@
 using System;
 using System.IO.Ports;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace HardwareToESP32
@@ -11,8 +12,15 @@ namespace HardwareToESP32
         private static Computer _computer;
         private static SerialPort _serialPort;
 
+        // Import the function to free the console window (it hides the window)
+        [DllImport("kernel32.dll")]
+        static extern bool FreeConsole();
+
         static void Main(string[] args)
         {
+            // Hide the console window
+            FreeConsole();
+
             // Set up the SerialPort for communication with ESP32
             _serialPort = new SerialPort("COM3", 9600); // Use the correct COM port
             _serialPort.Open();
@@ -24,8 +32,6 @@ namespace HardwareToESP32
                 IsGpuEnabled = true
             };
             _computer.Open();
-
-            Console.WriteLine("Monitoring hardware and sending data to ESP32...");
 
             // Monitor hardware and send data every second
             while (true)
@@ -83,7 +89,6 @@ namespace HardwareToESP32
             try
             {
                 _serialPort.WriteLine(data); // Send data to the ESP32
-                Console.WriteLine("Sent data: " + data);
             }
             catch (Exception ex)
             {
